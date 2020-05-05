@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=npc
-PKG_VERSION:=0.25.1
+PKG_VERSION:=0.26.6
 PKG_RELEASE:=2
 
 ifeq ($(ARCH),mipsel)
@@ -36,32 +36,33 @@ ifeq ($(ARCH),aarch64)
 endif
 
 PKG_LICENSE:=Apache-2.0
-
-PKG_SOURCE_URL:=https://github.com/cnlh/nps/releases/download/v$(PKG_VERSION)
-PKG_SOURCE:=linux_$(NPC_ARCH)_client.tar.gz
-PKG_BUILD_DIR:=$(BUILD_DIR)/nps-$(PKG_VERSION)
-PKG_HASH:=skip
+PKG_BUILD_DIR:=$(BUILD_DIR)/npc-$(PKG_VERSION)
+PKG_URL:=https://github.com/ehang-io/nps/releases/download/v$(PKG_VERSION)/linux_$(NPC_ARCH)_client.tar.gz
+PKG_FILE:=nps_linux_$(NPC_ARCH)_client-$(PKG_VERSION).tar.gz
 
 include $(INCLUDE_DIR)/package.mk
-
-PKG_UNPACK:=$(HOST_TAR) -C $(PKG_BUILD_DIR) -xzf $(DL_DIR)/$(PKG_SOURCE)
 
 define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=NPC Client
 	DEPENDS:=
-	URL:=https://github.com/cnlh/nps/releases
+	URL:=https://github.com/ehang-io/nps/releases
 endef
-
-
 
 define Package/$(PKG_NAME)/description
 npc is a fast reverse proxy to help you expose a local server behind a NAT or firewall to the internet
 endef
 
+define Build/Download
+	if [ ! -f $(DL_DIR)/$(PKG_FILE) ] ; then \
+		wget -c -t 5 -O $(DL_DIR)/$(PKG_FILE) $(PKG_URL); \
+	fi
+endef
+
 define Build/Prepare
-	$(PKG_UNPACK)
+	$(Build/Download)
+	tar -zxvf $(DL_DIR)/$(PKG_FILE) -C $(PKG_BUILD_DIR)
 endef
 
 define Build/Configure
